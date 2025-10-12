@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100;200;300;400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+.hero-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-image {
+  flex: 1;
+  width: 100%;
+  order: 2;
+}
+
+.hero-form {
+  flex: 1;
+  width: 100%;
+  order: 1;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .hero-container {
+    flex-direction: row;
+  }
+
+  .hero-image {
+    max-width: 50%;
+    order: 1;
+  }
+
+  .hero-form {
+    max-width: 50%;
+    order: 2;
+  }
+}
+
+.certificate-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  text-align: center;
+}
+
+.bangla-font {
+  font-family: 'Anek Bangla', sans-serif;
+}
+
+.poppins-font {
+  font-family: 'Poppins', sans-serif;
+}
