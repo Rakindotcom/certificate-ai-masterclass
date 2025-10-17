@@ -100,10 +100,11 @@ function App() {
             />
             <div style={{
               position: 'absolute',
-              top: '50%',
+              top: '52%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
+              width: '100%'
             }}>
               <div 
                 ref={nameRef}
@@ -112,9 +113,8 @@ function App() {
                   textAlign: 'center',
                   fontSize: `${fontSize}px`,
                   whiteSpace: 'nowrap',
-                  maxWidth: '70%',
-                  margin: '0 auto',
-                  display: 'inline-block'
+                  width: '100%',
+                  display: 'block'
                 }}
               >
                 {name}
