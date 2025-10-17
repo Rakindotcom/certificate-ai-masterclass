@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import html2canvas from 'html2canvas'
 import './App.css'
 
@@ -6,7 +6,9 @@ function App() {
   const [name, setName] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [showCertificate, setShowCertificate] = useState(false)
+  const [fontSize, setFontSize] = useState(42)
   const certificateRef = useRef(null)
+  const nameRef = useRef(null)
 
   const handleGenerateCertificate = () => {
     if (name.trim()) {
@@ -40,7 +42,35 @@ function App() {
   const handleReset = () => {
     setName('')
     setShowCertificate(false)
+    setFontSize(42) // Reset font size
   }
+
+  // Dynamically adjust font size to ensure text never breaks
+  useEffect(() => {
+    if (showCertificate && nameRef.current && certificateRef.current) {
+      const adjustFontSize = () => {
+        const nameElement = nameRef.current
+        const certificateElement = certificateRef.current
+        
+        // Get the available width (70% of certificate width)
+        const availableWidth = certificateElement.offsetWidth * 0.7
+        
+        let currentFontSize = 42
+        nameElement.style.fontSize = `${currentFontSize}px`
+        
+        // Keep reducing font size until text fits in one line
+        while (nameElement.scrollWidth > availableWidth && currentFontSize > 16) {
+          currentFontSize -= 2
+          nameElement.style.fontSize = `${currentFontSize}px`
+        }
+        
+        setFontSize(currentFontSize)
+      }
+      
+      // Small delay to ensure elements are rendered
+      setTimeout(adjustFontSize, 100)
+    }
+  }, [showCertificate, name])
 
   if (showCertificate) {
     return (
@@ -76,9 +106,15 @@ function App() {
               pointerEvents: 'none'
             }}>
               <div 
+                ref={nameRef}
                 className="signature-name"
                 style={{
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  fontSize: `${fontSize}px`,
+                  whiteSpace: 'nowrap',
+                  maxWidth: '70%',
+                  margin: '0 auto',
+                  display: 'inline-block'
                 }}
               >
                 {name}
