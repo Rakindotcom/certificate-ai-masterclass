@@ -52,8 +52,8 @@ function App() {
         const nameElement = nameRef.current
         const certificateElement = certificateRef.current
         
-        // Get the available width (70% of certificate width)
-        const availableWidth = certificateElement.offsetWidth * 0.7
+        // Get the available width (80% of certificate width)
+        const availableWidth = certificateElement.offsetWidth * 0.8
         
         let currentFontSize = 42
         nameElement.style.fontSize = `${currentFontSize}px`
