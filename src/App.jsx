@@ -76,11 +76,8 @@ function App() {
               pointerEvents: 'none'
             }}>
               <div 
+                className="signature-name"
                 style={{
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  color: 'black',
-                  fontFamily: 'Poppins, sans-serif',
                   textAlign: 'center'
                 }}
               >

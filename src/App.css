@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@100;200;300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
 
 * {
   box-sizing: border-box;
@@ -65,4 +67,17 @@ body {
 
 .poppins-font {
   font-family: 'Poppins', sans-serif;
+}.si
+gnature-font {
+  font-family: 'Great Vibes', cursive;
+}
+
+.signature-name {
+  font-family: 'Great Vibes', cursive;
+  font-size: 42px !important;
+  font-weight: 400;
+  color: #2c3e50;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 1px;
+  line-height: 1.2;
 }
