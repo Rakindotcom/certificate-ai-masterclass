@@ -21,30 +21,31 @@ function App() {
   }
 
   const handleDownload = async () => {
-    if (certificateRef.current) {
+    if (certificateRef.current && !imageLoading && !imageError) {
       setIsGenerating(true)
       try {
-        // Wait a bit to ensure all fonts and images are fully loaded
-        await new Promise(resolve => setTimeout(resolve, 500))
+        // Simple wait for everything to load
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
         const canvas = await html2canvas(certificateRef.current, {
-          scale: 4, // Increased from 2 to 4 for Full HD quality
-          backgroundColor: null,
-          useCORS: true,
-          allowTaint: true,
+          scale: 2,
+          backgroundColor: '#ffffff',
+          useCORS: false,
+          allowTaint: false,
           logging: false,
-          width: certificateRef.current.offsetWidth,
-          height: certificateRef.current.offsetHeight,
-          foreignObjectRendering: true
+          ignoreElements: (element) => {
+            return element.style && element.style.zIndex === '10'
+          }
         })
         
         const link = document.createElement('a')
         link.download = `certificate-${name.replace(/\s+/g, '-').toLowerCase()}.png`
-        link.href = canvas.toDataURL('image/png', 1.0) // Maximum quality
+        link.href = canvas.toDataURL('image/png', 1.0)
         link.click()
+        
       } catch (error) {
-        console.error('Error generating certificate:', error)
-        alert('Failed to generate certificate. Please try again.')
+        console.error('Download failed:', error)
+        alert('Failed to generate certificate. Please refresh the page and try again.')
       } finally {
         setIsGenerating(false)
       }
@@ -68,6 +69,8 @@ function App() {
     setImageLoading(false)
     setImageError(true)
   }
+
+
 
   // Dynamically adjust font size to ensure text never breaks
   useEffect(() => {
@@ -149,47 +152,80 @@ function App() {
               </div>
             )}
 
-            {/* Error State */}
+            {/* Error State - CSS Certificate Fallback */}
             {imageError && (
               <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 10,
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '2px solid #ef4444',
-                borderRadius: '12px',
-                padding: '20px',
-                textAlign: 'center',
-                color: '#ef4444'
+                width: '100%',
+                aspectRatio: '4/3',
+                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                border: '8px solid #1e293b',
+                borderRadius: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px',
+                position: 'relative',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
               }}>
-                <p>Failed to load certificate template</p>
-                <button 
-                  onClick={() => window.location.reload()}
-                  style={{
-                    background: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    marginTop: '8px'
-                  }}
-                >
-                  Retry
-                </button>
+                {/* Decorative border */}
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  left: '20px',
+                  right: '20px',
+                  bottom: '20px',
+                  border: '2px solid #64748b',
+                  borderRadius: '8px'
+                }}></div>
+                
+                {/* Certificate content */}
+                <div style={{ textAlign: 'center', zIndex: 1 }}>
+                  <h1 style={{ 
+                    fontSize: '32px', 
+                    color: '#1e293b', 
+                    marginBottom: '20px',
+                    fontFamily: 'serif'
+                  }}>
+                    Certificate of Achievement
+                  </h1>
+                  <p style={{ 
+                    fontSize: '18px', 
+                    color: '#475569', 
+                    marginBottom: '30px' 
+                  }}>
+                    This is to certify that
+                  </p>
+                  <div style={{
+                    fontSize: `${fontSize}px`,
+                    fontFamily: 'Great Vibes, cursive',
+                    color: '#1e293b',
+                    marginBottom: '30px',
+                    borderBottom: '2px solid #64748b',
+                    paddingBottom: '10px',
+                    minWidth: '300px'
+                  }}>
+                    {name}
+                  </div>
+                  <p style={{ 
+                    fontSize: '16px', 
+                    color: '#475569' 
+                  }}>
+                    has successfully completed the AI Masterclass
+                  </p>
+                </div>
               </div>
             )}
 
             <img 
-              src="/certificate.webp" 
+              src="/certificate.png" 
               alt="Certificate Template" 
               style={{ 
                 width: '100%', 
                 height: 'auto',
                 opacity: imageLoading ? 0.3 : 1,
-                transition: 'opacity 0.3s ease'
+                transition: 'opacity 0.3s ease',
+                display: 'block'
               }}
               onLoad={handleImageLoad}
               onError={handleImageError}
