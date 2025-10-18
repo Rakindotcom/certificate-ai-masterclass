@@ -7,11 +7,15 @@ function App() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [showCertificate, setShowCertificate] = useState(false)
   const [fontSize, setFontSize] = useState(42)
+  const [imageLoading, setImageLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
   const certificateRef = useRef(null)
   const nameRef = useRef(null)
 
   const handleGenerateCertificate = () => {
     if (name.trim()) {
+      setImageLoading(true)
+      setImageError(false)
       setShowCertificate(true)
     }
   }
@@ -20,19 +24,27 @@ function App() {
     if (certificateRef.current) {
       setIsGenerating(true)
       try {
+        // Wait a bit to ensure all fonts and images are fully loaded
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
         const canvas = await html2canvas(certificateRef.current, {
-          scale: 2,
+          scale: 4, // Increased from 2 to 4 for Full HD quality
           backgroundColor: null,
           useCORS: true,
-          allowTaint: true
+          allowTaint: true,
+          logging: false,
+          width: certificateRef.current.offsetWidth,
+          height: certificateRef.current.offsetHeight,
+          foreignObjectRendering: true
         })
         
         const link = document.createElement('a')
         link.download = `certificate-${name.replace(/\s+/g, '-').toLowerCase()}.png`
-        link.href = canvas.toDataURL()
+        link.href = canvas.toDataURL('image/png', 1.0) // Maximum quality
         link.click()
       } catch (error) {
         console.error('Error generating certificate:', error)
+        alert('Failed to generate certificate. Please try again.')
       } finally {
         setIsGenerating(false)
       }
@@ -42,7 +54,19 @@ function App() {
   const handleReset = () => {
     setName('')
     setShowCertificate(false)
-    setFontSize(42) // Reset font size
+    setFontSize(42)
+    setImageLoading(true)
+    setImageError(false)
+  }
+
+  const handleImageLoad = () => {
+    setImageLoading(false)
+    setImageError(false)
+  }
+
+  const handleImageError = () => {
+    setImageLoading(false)
+    setImageError(true)
   }
 
   // Dynamically adjust font size to ensure text never breaks
@@ -92,11 +116,84 @@ function App() {
               maxWidth: '600px',
               width: '100%'
             }}
+            role="img"
+            aria-label={`Certificate for ${name}`}
           >
+            {/* Loading Spinner */}
+            {imageLoading && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 10,
+                background: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '12px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  border: '4px solid #e5e7eb',
+                  borderTop: '4px solid #667eea',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                <span style={{ color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+                  Loading certificate...
+                </span>
+              </div>
+            )}
+
+            {/* Error State */}
+            {imageError && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 10,
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '2px solid #ef4444',
+                borderRadius: '12px',
+                padding: '20px',
+                textAlign: 'center',
+                color: '#ef4444'
+              }}>
+                <p>Failed to load certificate template</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  style={{
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    marginTop: '8px'
+                  }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
             <img 
-              src="/certificate.png" 
+              src="/certificate.webp" 
               alt="Certificate Template" 
-              style={{ width: '100%', height: 'auto' }}
+              style={{ 
+                width: '100%', 
+                height: 'auto',
+                opacity: imageLoading ? 0.3 : 1,
+                transition: 'opacity 0.3s ease'
+              }}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              loading="eager"
             />
             <div style={{
               position: 'absolute',
@@ -113,9 +210,11 @@ function App() {
                   textAlign: 'center',
                   fontSize: `${fontSize}px`,
                   whiteSpace: 'nowrap',
-                  width: '100%',
-                  display: 'block'
+                  display: 'inline-block',
+                  maxWidth: '80%'
                 }}
+                role="text"
+                aria-label={`Certificate recipient name: ${name}`}
               >
                 {name}
               </div>
@@ -125,16 +224,19 @@ function App() {
           <div style={{ marginTop: '24px', display: 'flex', gap: '16px', justifyContent: 'center' }}>
             <button
               onClick={handleDownload}
-              disabled={isGenerating}
+              disabled={isGenerating || imageLoading || imageError}
               style={{
-                backgroundColor: isGenerating ? '#9ca3af' : '#16a34a',
+                backgroundColor: (isGenerating || imageLoading || imageError) ? '#9ca3af' : '#16a34a',
                 color: 'white',
                 padding: '12px 32px',
                 borderRadius: '8px',
                 fontWeight: '600',
                 border: 'none',
-                cursor: isGenerating ? 'not-allowed' : 'pointer'
+                cursor: (isGenerating || imageLoading || imageError) ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease'
               }}
+              aria-label={isGenerating ? 'Generating certificate, please wait' : 'Download certificate as PNG file'}
+              aria-describedby="download-description"
             >
               {isGenerating ? 'Generating...' : 'Download Certificate'}
             </button>
@@ -147,11 +249,21 @@ function App() {
                 borderRadius: '8px',
                 fontWeight: '600',
                 border: 'none',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
               }}
+              aria-label="Create a new certificate with different name"
             >
               Create Another
             </button>
+          </div>
+          <div id="download-description" style={{ 
+            marginTop: '12px', 
+            color: '#64748b', 
+            fontSize: '14px', 
+            textAlign: 'center' 
+          }}>
+            Downloads as high-quality PNG file
           </div>
         </div>
       </div>
@@ -225,17 +337,21 @@ function App() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ 
-                  display: 'block', 
-                  color: '#e2e8f0', 
-                  textAlign: 'left', 
-                  fontWeight: '500',
-                  marginBottom: '8px',
-                  fontSize: '16px'
-                }}>
+                <label 
+                  htmlFor="name-input"
+                  style={{ 
+                    display: 'block', 
+                    color: '#e2e8f0', 
+                    textAlign: 'left', 
+                    fontWeight: '500',
+                    marginBottom: '8px',
+                    fontSize: '16px'
+                  }}
+                >
                   Enter your name
                 </label>
                 <input
+                  id="name-input"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -260,7 +376,17 @@ function App() {
                     e.target.style.border = '1px solid rgba(255, 255, 255, 0.2)'
                     e.target.style.background = 'rgba(255, 255, 255, 0.1)'
                   }}
+                  aria-describedby="name-help"
+                  aria-required="true"
+                  autoComplete="name"
                 />
+                <div id="name-help" style={{ 
+                  marginTop: '4px', 
+                  color: '#94a3b8', 
+                  fontSize: '12px' 
+                }}>
+                  This will appear on your certificate
+                </div>
               </div>
 
               <button
@@ -292,13 +418,17 @@ function App() {
                     e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)'
                   }
                 }}
+                aria-label="Generate personalized certificate"
+                aria-describedby="generate-help"
               >
                 Generate Certificate
               </button>
 
-              <div style={{ color: '#64748b', fontSize: '14px' }}>
+              <div id="generate-help" style={{ color: '#64748b', fontSize: '14px', textAlign: 'center' }}>
                 Enter your name to generate a personalized certificate
               </div>
+
+
             </div>
           </div>
         </div>
