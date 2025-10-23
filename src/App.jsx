@@ -242,6 +242,7 @@ function App() {
                     fontSize: `${fontSize}px`,
                     fontFamily: 'Bricolage Grotesque, sans-serif',
                     fontStyle: 'normal',
+                    fontWeight: 600,
                     color: '#1e293b',
                     marginBottom: '30px',
                     borderBottom: '2px solid #64748b',
