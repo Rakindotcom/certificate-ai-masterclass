@@ -240,7 +240,8 @@ function App() {
                   </p>
                   <div style={{
                     fontSize: `${fontSize}px`,
-                    fontFamily: 'Edu QLD Hand, cursive',
+                    fontFamily: 'EB Garamond, serif',
+                    fontStyle: 'italic',
                     color: '#1e293b',
                     marginBottom: '30px',
                     borderBottom: '2px solid #64748b',
