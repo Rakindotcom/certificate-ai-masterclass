@@ -240,8 +240,8 @@ function App() {
                   </p>
                   <div style={{
                     fontSize: `${fontSize}px`,
-                    fontFamily: 'EB Garamond, serif',
-                    fontStyle: 'italic',
+                    fontFamily: 'Bricolage Grotesque, sans-serif',
+                    fontStyle: 'normal',
                     color: '#1e293b',
                     marginBottom: '30px',
                     borderBottom: '2px solid #64748b',
