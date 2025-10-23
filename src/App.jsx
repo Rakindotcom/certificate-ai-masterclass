@@ -79,23 +79,65 @@ function App() {
         const nameElement = nameRef.current
         const certificateElement = certificateRef.current
         
-        // Get the available width (80% of certificate width)
-        const availableWidth = certificateElement.offsetWidth * 0.8
+        // Detect mobile devices
+        const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
         
-        let currentFontSize = 42
+        // More conservative width calculation for mobile
+        const widthMultiplier = isMobile ? 0.6 : 0.7
+        const availableWidth = certificateElement.offsetWidth * widthMultiplier
+        
+        // Start with smaller font size on mobile
+        let currentFontSize = isMobile ? 32 : 42
         nameElement.style.fontSize = `${currentFontSize}px`
         
-        // Keep reducing font size until text fits in one line
-        while (nameElement.scrollWidth > availableWidth && currentFontSize > 16) {
-          currentFontSize -= 2
+        // Force multiple reflows for mobile browsers
+        if (isMobile) {
+          nameElement.offsetWidth
+          nameElement.getBoundingClientRect()
+        }
+        
+        // More aggressive sizing for mobile
+        const minFontSize = isMobile ? 8 : 10
+        const decrement = isMobile ? 0.5 : 1
+        
+        // Keep reducing font size until text fits
+        while (nameElement.scrollWidth > availableWidth && currentFontSize > minFontSize) {
+          currentFontSize -= decrement
           nameElement.style.fontSize = `${currentFontSize}px`
+          
+          // Force reflow after each change (especially important on mobile)
+          nameElement.offsetWidth
+          if (isMobile) {
+            nameElement.getBoundingClientRect()
+          }
+        }
+        
+        // Mobile-specific additional safety check using getBoundingClientRect
+        if (isMobile && nameElement.getBoundingClientRect().width > availableWidth) {
+          while (nameElement.getBoundingClientRect().width > availableWidth && currentFontSize > 6) {
+            currentFontSize -= 0.5
+            nameElement.style.fontSize = `${currentFontSize}px`
+            nameElement.offsetWidth
+            nameElement.getBoundingClientRect()
+          }
         }
         
         setFontSize(currentFontSize)
       }
       
-      // Small delay to ensure elements are rendered
-      setTimeout(adjustFontSize, 100)
+      // More attempts with longer delays for mobile
+      const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      
+      if (isMobile) {
+        setTimeout(adjustFontSize, 200)
+        setTimeout(adjustFontSize, 500)
+        setTimeout(adjustFontSize, 800)
+        setTimeout(adjustFontSize, 1200)
+      } else {
+        setTimeout(adjustFontSize, 100)
+        setTimeout(adjustFontSize, 300)
+        setTimeout(adjustFontSize, 500)
+      }
     }
   }, [showCertificate, name])
 
@@ -237,7 +279,9 @@ function App() {
               left: '50%',
               transform: 'translate(-50%, -50%)',
               pointerEvents: 'none',
-              width: '100%'
+              width: window.innerWidth <= 768 ? '60%' : '70%', // Even more constrained on mobile
+              display: 'flex',
+              justifyContent: 'center'
             }}>
               <div 
                 ref={nameRef}
@@ -247,7 +291,10 @@ function App() {
                   fontSize: `${fontSize}px`,
                   whiteSpace: 'nowrap',
                   display: 'inline-block',
-                  maxWidth: '80%'
+                  maxWidth: '100%',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  transform: window.innerWidth <= 768 ? 'scaleX(0.95)' : 'none' // Slight horizontal compression on mobile
                 }}
                 role="text"
                 aria-label={`Certificate recipient name: ${name}`}

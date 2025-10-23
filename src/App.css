@@ -59,7 +59,24 @@ body {
   color: #2c3e50;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.5px;
-  line-height: 1.2;
+  line-height: 1.1;
+  word-break: keep-all;
+  white-space: nowrap;
+  font-feature-settings: "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-specific styles for signature name */
+@media (max-width: 768px) {
+  .signature-name {
+    letter-spacing: 0.2px;
+    font-weight: 400;
+    text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1);
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
 }
 
 /* Loading spinner animation */
